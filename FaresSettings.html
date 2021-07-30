@@ -1,0 +1,288 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <!-- CSS only -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    <script src="https://cdn.rawgit.com/rainabba/jquery-table2excel/1.1.0/dist/jquery.table2excel.min.js"></script>
+</head>
+<body class="container">
+    <div ng-app="mainApp" data-ng-controller="CRUDController">
+        <form class="form-horizontal" ng-submit="AddData()" role="form">
+            <div class="form-group">
+                <label for="firstName" class="col-sm-3 control-label">Select Country:</label>
+                <div class="col-sm-6">
+                    <select data-ng-model="CurrencyModel.selectedCountry" ng-selected="CurrencyModel.selectedCountry == selectedcPlacement" class="form-control" ng-options="country.name for country in countries track by country.code" ng-required="true">
+                        <option value="">-- Select --</option>
+                    </select>
+                </div>
+                <div class="col-sm-3"></div>
+            </div>
+            <div class="form-group">
+                <label for="firstName" class="col-sm-3 control-label">Currency Code:</label>
+                <div class="col-sm-6">
+                    <input type="text" class="form-control" data-ng-model="CurrencyModel.code" ng-required="true" />
+                </div>
+                <div class="col-sm-3"></div>
+            </div>
+            <div class="form-group">
+                <label for="firstName" class="col-sm-3 control-label">Currency Symbol:</label>
+                <div class="col-sm-6">
+                    <input type="text" class="form-control" data-ng-model="CurrencyModel.symbol" ng-required="true" />
+                </div>
+                <div class="col-sm-3"></div>
+            </div>
+            <div class="form-group">
+                <label for="firstName" class="col-sm-3 control-label">Show Current code / Symbole:</label>
+                <div class="col-sm-6">
+                    <select ng-model="CurrencyModel.cors" class="form-control" ng-required="true">
+                        <option value="">-- Select --</option>
+                        <option value="Code">Code</option>
+                        <option value="Symbol">Symbol</option>
+                    </select>
+                </div>
+                <div class="col-sm-3"></div>
+            </div>
+            <div class="form-group">
+                <label for="firstName" class="col-sm-3 control-label">Currency Placement:</label>
+                <div class="col-sm-6">
+                    <select class="form-control" ng-required="true" data-ng-model="CurrencyModel.cPlacement" ng-selected="CurrencyModel.cPlacement == selectedcPlacement">
+                        <option value="">-- Select --</option>
+                        <option value="Before">Before</option>
+                        <option value="After">After</option>
+                    </select>
+                </div>
+                <div class="col-sm-3"></div>
+            </div>
+            <div class="form-group">
+                <label for="firstName" class="col-sm-3 control-label">Show Cents:</label>
+                <div class="col-sm-6">
+                    <div class="radio">
+                        <input type="radio" name="cents" ng-value="true" ng-selected="selected" ng-model="model.selectedCentsOption" />
+                        <label>Yes</label>
+                    </div>
+                    <div class="radio">
+                        <input type="radio" name="cents" ng-value="false" ng-model="model.selectedCentsOption" />
+                        <label>No</label>
+                    </div>
+                </div>
+                <div class="col-sm-3"></div>
+            </div>
+            <div class="form-group">
+                <label for="firstName" class="col-sm-3 control-label">Display Format:</label>
+                <div class="col-sm-6">
+                    <select class="form-control" ng-required="true" data-ng-model="CurrencyModel.DFormat">
+                        <option value="">-- Select --</option>
+                        <option value="#,###.##">#,###.##</option>
+                        <option value="#.###,##">#.###,##</option>
+                    </select>
+                </div>
+                <div class="col-sm-3"></div>
+            </div>
+            <br />
+            <div class="col-sm-12"></div>
+            <input type="submit" ng-show="savebtn" value="Save" class="btn btn-primary col-sm-offset-3" />
+            <input type="button" ng-show="updatebtn" value="Update" class="btn" data-ng-click="UpdateData()" /> <br />
+        </form>
+        <br />
+        <div class="col-sm-12">
+        </div>
+        <table id="tblCurrency" class="table table-striped" cellpadding="0" cellspacing="0">
+            <tr>
+                <th>Id</th>
+                <th>Country</th>
+                <th>Currency/Symbole</th>
+                <th>Symbol</th>
+                <th>Currency Placement</th>
+                <th>Show Cents</th>
+                <th>Display Format</th>
+                <th>Actions</th>
+            </tr>
+            <tbody ng-repeat="m in gridData">
+                <tr>
+                    <td>{{m.id}}</td>
+                    <td>{{m.country}}</td>
+                    <td>{{m.currencyOrSymbol}}</td>
+                    <td>{{m.currencySymbol}}</td>
+                    <td>{{m.currencyPlacement}}</td>
+                    <td>{{m.showCents}}</td>
+                    <td>{{m.displayFormat}}</td>
+                    <td>
+                        <a href="#" ng-click="edit(m.id)">edit</a> |
+
+                        <a href="#" ng-click="delete(m.id)">delete</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <input type="button" value="Export" ng-show="exportbtn" class="btn btn-primary col-sm-offset-3" ng-click="Export()" />
+    </div>
+    <script type="text/javascript">var app = angular.module("mainApp", []);
+            app.controller('CRUDController', function ($scope, $http) {
+               
+                $scope.LoadData = function() {
+                    $http.get('http://localhost:5000/api/Currencies').then(function (response) {
+                        $scope.gridData = response.data;
+                        if (response.data.length > 0)
+                            $scope.exportbtn = true;
+                        else
+                            $scope.exportbtn = false;
+                    });
+                }
+                $scope.CurrencyModel = {
+                    Id: 0,
+                    selectedCountry: '',
+                    cors: '',
+                    cPlacement: '',
+                    selectedCentsOption: false,
+                    DFormat: '',
+                    code: '',
+                    symbol: ''
+                };
+                $scope.countries = [
+                    { name: 'American', code: 'American' },
+                    { name: 'Spain', code: 'Spain' },
+                    { name: 'Argentina', code: 'Argentina' },
+                    { name: 'Germany', code: 'Germany' }
+                ];
+                $scope.EmpList = [];
+                $scope.updatebtn = false;
+                $scope.savebtn = true;
+                $scope.UpdateData = function () {
+                    var _emp = {
+                        Id: $scope.EmpList.length + 1,
+                        selectedCountry: $scope.CurrencyModel.selectedCountry.name,
+                        cors: $scope.CurrencyModel.cors,
+                        cPlacement: $scope.CurrencyModel.cPlacement,
+                        selectedCentsOption: $scope.CurrencyModel.selectedCentsOption,
+                        DFormat: $scope.CurrencyModel.DFormat,
+                        code: $scope.CurrencyModel.code,
+                        symbol: $scope.CurrencyModel.symbol
+                    };
+                    $scope.EmpList.push(_emp);
+                    ClearModel();
+                }
+                $scope.Export = function () {
+                    $("#tblCurrency").table2excel({
+                        exclude: ".noExl",
+                          name: "Worksheet Name",
+                          filename: "SomeFile",
+                          fileext: ".xls",
+                          exclude_img: true,
+                          exclude_links: true,
+                          exclude_inputs: true
+
+                    });
+                }
+                $scope.DeleteData = function (emp) {
+                    var _index = $scope.EmpList.indexOf(emp);
+                    $scope.EmpList.splice(_index, 1);
+                }
+
+                $scope.BindSelectedData = function (emp) {
+                    $scope.CurrencyModel.Id = emp.Id;
+                    $scope.CurrencyModel.selectedCountry = emp.selectedCountry;
+                    $scope.CurrencyModel.cors = emp.cors;
+                    $scope.CurrencyModel.cPlacement = emp.cPlacement;
+                    $scope.CurrencyModel.selectedCentsOption = emp.selectedCentsOption;
+                    $scope.CurrencyModel.DFormat = emp.DFormat;
+                    $scope.CurrencyModel.code = emp.code;
+                    $scope.CurrencyModel.symbol = emp.symbol;
+                }
+
+                $scope.AddData = function () {
+                    var requestData = {
+                        country: $scope.CurrencyModel.selectedCountry.name,
+                        currencyCode: $scope.CurrencyModel.code,
+                        currencySymbol: $scope.CurrencyModel.symbol,
+                        currencyOrSymbol: $scope.CurrencyModel.cors,
+                        currencyPlacement: $scope.CurrencyModel.cPlacement,
+                        showCents: true,
+                        displayFormat: $scope.CurrencyModel.DFormat
+                    }
+                    var req = {
+                        method: 'POST',
+                        url: 'http://localhost:5000/api/Currencies',
+                        headers: {
+                            'Content-Type': "application/json"
+                        },
+                        data: requestData
+                    }
+
+                    $http(req).then(function () { alert("Record saved successfully."); $scope.LoadData(); }, function () { alert("Error occured while saving the record."); });
+                    $.grep($scope.EmpList, function (e) {
+                        if (e.Id == $scope.CurrencyModel.Id) {
+                            e.selectedCountry = $scope.CurrencyModel.selectedCountry;
+                            e.cors = $scope.CurrencyModel.cors;
+                            e.cPlacement = $scope.CurrencyModel.cPlacement;
+                            e.selectedCentsOption = $scope.CurrencyModel.selectedCentsOption;
+                            e.DFormat = $scope.CurrencyModel.DFormat;
+                            e.code = $scope.CurrencyModel.code;
+                            e.symbol = $scope.CurrencyModel.symbol;
+                        }
+                    });
+                    ClearModel();
+                }
+                $scope.delete = function (id) {
+
+
+                    var req = {
+                        method: 'DELETE',
+                        url: 'http://localhost:5000/api/Currencies/' + id,
+                        headers: {
+                            'Content-Type': "application/json"
+                        }
+                    }
+
+                    $http(req).then(function () { alert("Record deleted successfully"); $scope.LoadData(); }, function () { alert("Error occured while deleting the record."); });
+
+
+                }
+
+                $scope.LoadData();
+
+                $scope.edit = function (id) {
+
+                    var req = {
+                        method: 'GET',
+                        url: 'http://localhost:5000/api/Currencies/' + id,
+                        headers: {
+                            'Content-Type': "application/json"
+                        }
+                    }
+
+                    $http(req).then(function (response) {
+                        $scope.CurrencyModel.Id = response.data.id;
+                        //$scope.selectedCountryvalue = response.data.country;
+                        //$scope.selectedcors = response.data.cors;
+                        $scope.CurrencyModel.selectedCountry.name = response.data.country;
+                       // $scope.CurrencyModel.cors = response.data.cors;
+                        $scope.CurrencyModel.cPlacement = response.data.cPlacement;
+                        $scope.CurrencyModel.selectedCentsOption = response.data.showCents;
+                        $scope.CurrencyModel.DFormat = response.data.DFormat;
+                        $scope.CurrencyModel.code = response.data.currencyCode;
+                        $scope.CurrencyModel.symbol = response.data.currencySymbol;
+                        $scope.savebtn = false;
+                        $scope.updatebtn = true;
+                    }, function () { alert("Failure"); });
+
+
+                }
+
+
+                function ClearModel() {
+                    $scope.CurrencyModel.Id = 0;
+                    $scope.CurrencyModel.selectedCountry = '';
+                    $scope.CurrencyModel.cors = '';
+                    $scope.CurrencyModel.cPlacement = '';
+                    $scope.CurrencyModel.selectedCentsOption = '';
+                    $scope.CurrencyModel.DFormat = '';
+                    $scope.CurrencyModel.code = '';
+                    $scope.CurrencyModel.symbol = '';
+                }
+
+            });</script>
+</body>
+</html> 
