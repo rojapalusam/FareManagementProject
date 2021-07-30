@@ -35,7 +35,7 @@
                 <div class="col-sm-3"></div>
             </div>
             <div class="form-group">
-                <label for="firstName" class="col-sm-3 control-label">Show Current code / Symbole:</label>
+                <label for="firstName" class="col-sm-3 control-label">Show Curreny code / Symbol:</label>
                 <div class="col-sm-6">
                     <select ng-model="CurrencyModel.cors" class="form-control" ng-required="true">
                         <option value="">-- Select --</option>
@@ -60,11 +60,11 @@
                 <label for="firstName" class="col-sm-3 control-label">Show Cents:</label>
                 <div class="col-sm-6">
                     <div class="radio">
-                        <input type="radio" name="cents" ng-value="true" ng-selected="selected" ng-model="model.selectedCentsOption" />
+                        <input type="radio" name="cents" ng-value="true" ng-selected="selected" data-ng-model="CurrencyModel.selectedCentsOption" />
                         <label>Yes</label>
                     </div>
                     <div class="radio">
-                        <input type="radio" name="cents" ng-value="false" ng-model="model.selectedCentsOption" />
+                        <input type="radio" name="cents" ng-value="false" data-ng-model="CurrencyModel.selectedCentsOption" />
                         <label>No</label>
                     </div>
                 </div>
@@ -81,6 +81,16 @@
                 </div>
                 <div class="col-sm-3"></div>
             </div>
+            <div class="form-group">
+                <label for="firstName" class="col-sm-3 control-label">Currency Code:</label>
+                <div class="col-sm-6">
+
+                    <input type="text" class="form-control" ng-model="sampleNumber" ng-change="calculate()" ng-required="true" />
+                </div>
+                <div class="col-sm-3"></div>
+
+            </div>
+            <label>{{formatedValue}}</label>
             <br />
             <div class="col-sm-12"></div>
             <input type="submit" ng-show="savebtn" value="Save" class="btn btn-primary col-sm-offset-3" />
@@ -93,7 +103,7 @@
             <tr>
                 <th>Id</th>
                 <th>Country</th>
-                <th>Currency/Symbole</th>
+                <th>Currency/Symbol</th>
                 <th>Symbol</th>
                 <th>Currency Placement</th>
                 <th>Show Cents</th>
@@ -142,14 +152,38 @@
                     symbol: ''
                 };
                 $scope.countries = [
-                    { name: 'American', code: 'American' },
+                    { name: 'United States of America', code: 'United States of America' },
                     { name: 'Spain', code: 'Spain' },
                     { name: 'Argentina', code: 'Argentina' },
                     { name: 'Germany', code: 'Germany' }
                 ];
                 $scope.EmpList = [];
                 $scope.updatebtn = false;
-                $scope.savebtn = true;
+                $scope.savebtn = true;
+                $scope.calculate = function () {
+                    var val = $scope.sampleNumber;
+                    if ($scope.CurrencyModel.selectedCentsOption == false)
+                        val = parseInt(val);
+                    if ($scope.CurrencyModel.cors == "Symbol") {
+                        var symbol = $scope.CurrencyModel.symbol;
+                        if ($scope.CurrencyModel.cPlacement == "Before") {
+                            val = symbol + " " + val;
+                        } else {
+                            val = val + " " + symbol;
+                        }
+
+                        $scope.formatedValue = val;
+                    } else {
+                        var code = $scope.CurrencyModel.code;
+                        if ($scope.CurrencyModel.cPlacement == "Before") {
+                            var val = code + " " + val;
+                        } else {
+                            var val = val + " " + code;
+                        }
+                        $scope.formatedValue = val;
+                    }
+
+                }
                 $scope.UpdateData = function () {
                     var _emp = {
                         Id: $scope.EmpList.length + 1,
@@ -199,7 +233,7 @@
                         currencySymbol: $scope.CurrencyModel.symbol,
                         currencyOrSymbol: $scope.CurrencyModel.cors,
                         currencyPlacement: $scope.CurrencyModel.cPlacement,
-                        showCents: true,
+                        showCents: $scope.CurrencyModel.selectedCentsOption,
                         displayFormat: $scope.CurrencyModel.DFormat
                     }
                     var req = {

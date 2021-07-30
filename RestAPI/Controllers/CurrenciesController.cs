@@ -12,7 +12,7 @@ namespace RestAPI.Controllers
     [Route("api/[controller]")]
     [ApiController]
     public class CurrenciesController : ControllerBase
-    {
+    { 
         private readonly dbAdvertiseFaresContext _context;
 
         public CurrenciesController(dbAdvertiseFaresContext context)

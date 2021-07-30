@@ -1,0 +1,29 @@
+CREATE DATABASE [dbAdvertiseFares]
+
+USE [dbAdvertiseFares]
+GO
+
+/****** Object:  Table [dbo].[tblCurrency]    Script Date: 30-07-2021 18:29:21 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[tblCurrency](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Country] [varchar](50) NULL,
+	[CurrencyCode] [varchar](50) NULL,
+	[CurrencySymbol] [nchar](10) NULL,
+	[CurrencyOrSymbol] [varchar](50) NULL,
+	[CurrencyPlacement] [varchar](50) NULL,
+	[ShowCents] [bit] NULL,
+	[DisplayFormat] [varchar](50) NULL,
+ CONSTRAINT [PK_tblCurrency] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+
